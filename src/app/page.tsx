@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { RotateCcw, Plus, MonitorPlay } from "lucide-react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function Home() {
   const [min, setmin] = useState(0);
@@ -70,6 +71,7 @@ export default function Home() {
           </Button>
         </div>
       </div>
+      <SpeedInsights />
     </main>
   );
 }
