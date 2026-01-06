@@ -45,7 +45,7 @@ export default function Home() {
 
         <div className="flex gap-4 item-center">
           <Button
-            onClick={() => setIsActive(true)}
+            onClick={() => setmin(min + 1)}
             className="bg-blue-600 hover:bg-blue-500"
           >
             <Plus className="mr-2 h-5 w-5" />1分
