@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { RotateCcw, Plus, MonitorPlay } from "lucide-react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   const [min, setmin] = useState(0);
@@ -28,6 +29,18 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-slate-950 text-white">
+      <div className="fixed top-6 right-6 z-50">
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-5 py-2 rounded-full transition-all font-medium">
+              ログイン
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
       <h1 className={`text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 
                      to-cyan-300 bg-clip-text text-transparent
                      ${isActive ? "text-blue-400" : ""}`}
