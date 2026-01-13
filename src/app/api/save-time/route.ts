@@ -29,3 +29,18 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+
+export async function GET() {
+    try {
+        await dbConnect();
+        const { userId } = await auth();
+        if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+        const logs = await Log.find({ userId }).sort({ createdAt: -1 });
+
+        // ここで "data" という名前で送っているか確認！
+        return NextResponse.json({ success: true, data: logs });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
