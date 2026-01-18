@@ -20,3 +20,5 @@ npm run dev
 - **使用言語**: [TypeScript](https://www.typescriptlang.org)
 - **UI**: [shadcn/ui](https://ui.shadcn.com) [TailwindCSS](https://tailwindcss.com)
 - **アイコン**: [Lucide React](https://lucide.dev)
+- **データベース**: [MongoDB](https://www.mongodb.com)
+- **認証**: [Clerk](https://clerk.dev)
