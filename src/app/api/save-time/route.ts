@@ -44,3 +44,20 @@ export async function GET() {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    await dbConnect();
+
+    if (id) {
+        await Log.deleteOne({ _id: id, userId });
+        return NextResponse.json({ message: "削除しました" });
+    }
+
+    return NextResponse.json({ error: "IDがありません" }, { status: 400 });
+} 
