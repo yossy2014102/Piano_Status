@@ -2,11 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { RotateCcw, Plus, MonitorPlay, History } from "lucide-react";
+import { RotateCcw, Plus, MonitorPlay, History, Settings } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
 import Calendar from 'react-calendar'; // 追加
 import 'react-calendar/dist/Calendar.css'; // 標準スタイル
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 // 型定義
 interface Log {
@@ -21,6 +29,9 @@ export default function Home() {
   const [isActive, setIsActive] = useState(false);
   const [logs, setLogs] = useState<Log[]>([]); // 履歴用
   const { user, isLoaded } = useUser();
+  const totalSeconds = logs.reduce((sum, log) => sum + log.duration, 0);
+  const totalHours = Math.floor(totalSeconds / 3600);
+  const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
 
   // --- 履歴を取得する関数 ---
   const fetchLogs = async () => {
@@ -66,6 +77,13 @@ export default function Home() {
   // --- 保存関数 ---
   const saveTime = async () => {
     if (!user) return alert("ログインしてください");
+
+    // --- 追加：0分0秒のときは保存させない ---
+    if (min === 0 && sec === 0) {
+      alert("練習時間を計測してから保存してください");
+      return;
+    }
+
     try {
       const response = await fetch("/api/save-time", {
         method: "POST",
@@ -95,7 +113,7 @@ export default function Home() {
           <TooltipProvider delayDuration={0}> {/* delayDuration={0} で即表示 */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="absoulte inset-0">
+                <div className="absolute inset-0">
                   <div className="absolute inset-0 flex items-end justify-center pb-1 z-10">
                     <div className="w-1.5 h-1.5 bg-blue-400 rounded-full shadow-[0_0_5px_rgba(96,165,250,0.8)]" />
                   </div>
@@ -138,10 +156,62 @@ export default function Home() {
             </SignInButton>
           ) : (
             <>
-              <UserButton afterSignOutUrl="/" />
               <button onClick={saveTime} className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all">
                 保存
               </button>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full text-slate-300 hover:text-white hover:bg-slate-800">
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />設定
+                    </DialogTitle>
+
+                    <DialogDescription className="text-slate-500 text-xs">
+                      アカウント管理と練習データの確認ができます。
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="py-6 space-y-6">
+                    <div className="flex items-center justify-center juxtify-between p-4 bg-slate-800 rounded-xl border border-slate-700">
+                      <div className="mr-4 flex-shrink-0">
+                        <UserButton afterSignOutUrl="/" />
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">アカウント</p>
+                        <p className="text-xs font-medium text-slate-100 break-all">{user.primaryEmailAddress?.emailAddress}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-slate-900 rounded-lg border text-center">
+                        <p className="text-[10px] text-slate-100 uppercase">総練習回数</p>
+                        <p className="text-xl font-bold text-blue-500">{logs.length}回</p>
+                      </div>
+                      <div className="p-3 bg-slate-900 rounded-lg text-center">
+                        <p className="text-[10px] text-slate-500 uppercase">累計データ</p>
+                        <p className="text-xl font-bold text-blue-400">
+                          {totalHours > 0 ? `${totalHours}h ` : ""}{totalMinutes}m
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2 py-2 px-4 bg-blue-500/10 rounded-full border border-blue-500/20">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                      <span className="text-[10px] font-medium text-blue-400 uppercase tracking-widest">クラウドに同期中</span>
+                    </div>
+
+                    <div className="text-[10px] text-center text-slate-600 uppercase tracking-tighter">
+                      Piano Status v1.0.0
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </>
           )}
         </div>
@@ -232,6 +302,6 @@ export default function Home() {
           background: inherit;
         }
       `}</style>
-    </main>
+    </main >
   );
 }
